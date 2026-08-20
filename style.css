@@ -40,3 +40,9 @@ h1 {
     color: #0066cc;
     text-decoration: none;
 }
+
+.live-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
