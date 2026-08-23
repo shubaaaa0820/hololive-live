@@ -3,6 +3,12 @@ const liveList = document.getElementById("live-list");
 const DATA_URL = "data/streams.json";
 
 
+/*
+ * ================================================================
+ * JSON取得
+ * ================================================================
+ */
+
 async function loadStreams() {
 
     try {
@@ -40,6 +46,12 @@ async function loadStreams() {
 }
 
 
+/*
+ * ================================================================
+ * 配信表示
+ * ================================================================
+ */
+
 function displayStreams(streams) {
 
     liveList.innerHTML = "";
@@ -61,42 +73,60 @@ function displayStreams(streams) {
      * ------------------------------------------------------------
      * 配信開始時刻順に並べる
      *
-     * 同じ時刻の場合は元のJSONの順番を維持する。
+     * 同じ時刻の場合はJSONの順番を維持する。
      * ------------------------------------------------------------
      */
 
     const sortedStreams =
         streams
-            .map((stream, index) => ({
-                stream,
-                index
-            }))
-            .sort((a, b) => {
+            .map(
+                (stream, index) => ({
+                    stream,
+                    index
+                })
+            )
+            .sort(
+                (a, b) => {
 
-                const timeA =
-                    getStartTime(a.stream);
+                    const timeA =
+                        getStartTime(
+                            a.stream
+                        );
 
-                const timeB =
-                    getStartTime(b.stream);
+                    const timeB =
+                        getStartTime(
+                            b.stream
+                        );
 
 
-                const comparison =
-                    timeA.localeCompare(timeB);
+                    const comparison =
+                        timeA.localeCompare(
+                            timeB
+                        );
 
 
-                if (comparison !== 0) {
+                    if (
+                        comparison !== 0
+                    ) {
 
-                    return comparison;
+                        return comparison;
+                    }
+
+
+                    /*
+                     * 同時刻ならJSONの元の順番
+                     */
+
+                    return (
+                        a.index -
+                        b.index
+                    );
                 }
-
-
-                /*
-                 * 同時刻なら元のJSON順
-                 */
-
-                return a.index - b.index;
-            })
-            .map(item => item.stream);
+            )
+            .map(
+                item =>
+                    item.stream
+            );
 
 
     /*
@@ -114,21 +144,23 @@ function displayStreams(streams) {
         of sortedStreams
     ) {
 
-        const date =
+        const dateKey =
             getDateKey(stream);
 
 
-        if (!groups.has(date)) {
+        if (
+            !groups.has(dateKey)
+        ) {
 
             groups.set(
-                date,
+                dateKey,
                 []
             );
         }
 
 
         groups
-            .get(date)
+            .get(dateKey)
             .push(stream);
     }
 
@@ -140,25 +172,41 @@ function displayStreams(streams) {
      */
 
     for (
-        const [date, dateStreams]
+        const [
+            dateKey,
+            dateStreams
+        ]
         of groups
     ) {
 
         const section =
-            document.createElement("section");
+            document.createElement(
+                "section"
+            );
+
 
         section.className =
             "date-section";
 
 
+        /*
+         * 日付見出し
+         */
+
         const heading =
-            document.createElement("h2");
+            document.createElement(
+                "h2"
+            );
+
 
         heading.className =
             "date-heading";
 
+
         heading.textContent =
-            formatDateHeading(date);
+            formatDateHeading(
+                dateKey
+            );
 
 
         section.appendChild(
@@ -166,8 +214,15 @@ function displayStreams(streams) {
         );
 
 
+        /*
+         * その日の配信
+         */
+
         const cards =
-            document.createElement("div");
+            document.createElement(
+                "div"
+            );
+
 
         cards.className =
             "date-streams";
@@ -179,7 +234,9 @@ function displayStreams(streams) {
         ) {
 
             cards.appendChild(
-                createStreamCard(stream)
+                createStreamCard(
+                    stream
+                )
             );
         }
 
@@ -187,6 +244,7 @@ function displayStreams(streams) {
         section.appendChild(
             cards
         );
+
 
         liveList.appendChild(
             section
@@ -197,7 +255,7 @@ function displayStreams(streams) {
 
 /*
  * ================================================================
- * 開始時刻取得
+ * 開始時刻
  * ================================================================
  */
 
@@ -215,6 +273,12 @@ function getStartTime(stream) {
 /*
  * ================================================================
  * 日付キー
+ *
+ * 日本時間の日付を
+ *
+ * 2026/08/24
+ *
+ * の形式で作る。
  * ================================================================
  */
 
@@ -236,39 +300,22 @@ function getDateKey(stream) {
     }
 
 
-    /*
-     * 日本時間の日付として扱う
-     */
+    return date.toLocaleDateString(
+        "ja-JP",
+        {
+            timeZone:
+                "Asia/Tokyo",
 
-    const year =
-        date.toLocaleString(
-            "ja-JP",
-            {
-                timeZone: "Asia/Tokyo",
-                year: "numeric"
-            }
-        );
+            year:
+                "numeric",
 
-    const month =
-        date.toLocaleString(
-            "ja-JP",
-            {
-                timeZone: "Asia/Tokyo",
-                month: "2-digit"
-            }
-        );
+            month:
+                "2-digit",
 
-    const day =
-        date.toLocaleString(
-            "ja-JP",
-            {
-                timeZone: "Asia/Tokyo",
-                day: "2-digit"
-            }
-        );
-
-
-    return `${year}-${month}-${day}`;
+            day:
+                "2-digit"
+        }
+    );
 }
 
 
@@ -280,42 +327,61 @@ function getDateKey(stream) {
 
 function formatDateHeading(dateKey) {
 
-    if (dateKey === "unknown") {
-        return "日時不明";
-    }
-
-
-    const parts =
-        dateKey.split("-");
-
-
-    if (parts.length !== 3) {
-        return "日時不明";
-    }
-
-
-    const year =
-        Number(parts[0]);
-
-    const month =
-        Number(parts[1]);
-
-    const day =
-        Number(parts[2]);
-
-
     if (
-        !year ||
-        !month ||
-        !day
+        dateKey === "unknown"
     ) {
+
         return "日時不明";
     }
 
 
     /*
-     * 曜日だけを取得
+     * dateKeyは
+     *
+     * 2026/08/24
+     *
+     * の形式
      */
+
+    const parts =
+        dateKey.split("/");
+
+
+    if (
+        parts.length !== 3
+    ) {
+
+        return dateKey;
+    }
+
+
+    const year =
+        Number(
+            parts[0]
+        );
+
+
+    const month =
+        Number(
+            parts[1]
+        );
+
+
+    const day =
+        Number(
+            parts[2]
+        );
+
+
+    if (
+        Number.isNaN(year) ||
+        Number.isNaN(month) ||
+        Number.isNaN(day)
+    ) {
+
+        return dateKey;
+    }
+
 
     const date =
         new Date(
@@ -329,7 +395,8 @@ function formatDateHeading(dateKey) {
         date.toLocaleDateString(
             "ja-JP",
             {
-                weekday: "short"
+                weekday:
+                    "short"
             }
         );
 
@@ -340,24 +407,35 @@ function formatDateHeading(dateKey) {
 
 /*
  * ================================================================
- * 配信カード作成
+ * 配信カード
  * ================================================================
  */
 
 function createStreamCard(stream) {
 
     const card =
-        document.createElement("article");
+        document.createElement(
+            "article"
+        );
+
 
     card.className =
         "live-card";
 
+
+    /*
+     * 開始時刻
+     */
 
     const startTime =
         formatStartTime(
             getStartTime(stream)
         );
 
+
+    /*
+     * 配信状態
+     */
 
     const statusText =
         getStatusText(
@@ -366,43 +444,81 @@ function createStreamCard(stream) {
 
 
     const statusClass =
-        `status-${stream.status || "unknown"}`;
+        `status-${
+            stream.status ||
+            "unknown"
+        }`;
 
+
+    /*
+     * カードHTML
+     */
 
     card.innerHTML = `
+
         <a
             class="thumbnail-link"
             href="${escapeHtml(stream.url)}"
             target="_blank"
             rel="noopener noreferrer"
         >
+
             <img
-                src="${escapeHtml(stream.thumbnail || "")}"
-                alt="${escapeHtml(stream.name)}の配信サムネイル"
+                src="${escapeHtml(
+                    stream.thumbnail || ""
+                )}"
+                alt="${escapeHtml(
+                    stream.name
+                )}の配信サムネイル"
             >
+
         </a>
 
+
         <div class="live-card-content">
+
 
             <div class="live-card-header">
 
                 <span class="start-time">
-                    ${escapeHtml(startTime)}
+
+                    ${escapeHtml(
+                        startTime
+                    )}
+
                 </span>
 
-                <span class="status ${statusClass}">
-                    ${escapeHtml(statusText)}
+
+                <span
+                    class="status ${statusClass}"
+                >
+
+                    ${escapeHtml(
+                        statusText
+                    )}
+
                 </span>
 
             </div>
 
+
             <h3 class="stream-name">
-                ${escapeHtml(stream.name)}
+
+                ${escapeHtml(
+                    stream.name
+                )}
+
             </h3>
 
+
             <p class="stream-title">
-                ${escapeHtml(stream.title)}
+
+                ${escapeHtml(
+                    stream.title
+                )}
+
             </p>
+
 
         </div>
     `;
@@ -414,20 +530,26 @@ function createStreamCard(stream) {
 
 /*
  * ================================================================
- * 開始時刻表示
+ * 時刻表示
  * ================================================================
  */
 
-function formatStartTime(dateString) {
+function formatStartTime(
+    dateString
+) {
 
-    if (!dateString) {
+    if (
+        !dateString
+    ) {
 
         return "--:--";
     }
 
 
     const date =
-        new Date(dateString);
+        new Date(
+            dateString
+        );
 
 
     if (
@@ -443,9 +565,14 @@ function formatStartTime(dateString) {
     return date.toLocaleTimeString(
         "ja-JP",
         {
-            timeZone: "Asia/Tokyo",
-            hour: "2-digit",
-            minute: "2-digit"
+            timeZone:
+                "Asia/Tokyo",
+
+            hour:
+                "2-digit",
+
+            minute:
+                "2-digit"
         }
     );
 }
@@ -457,20 +584,29 @@ function formatStartTime(dateString) {
  * ================================================================
  */
 
-function getStatusText(status) {
+function getStatusText(
+    status
+) {
 
     switch (status) {
 
         case "live":
+
             return "配信中";
 
+
         case "upcoming":
+
             return "予定";
 
+
         case "ended":
+
             return "終了";
 
+
         default:
+
             return "";
     }
 }
@@ -485,7 +621,9 @@ function getStatusText(status) {
 function escapeHtml(value) {
 
     const div =
-        document.createElement("div");
+        document.createElement(
+            "div"
+        );
 
 
     div.textContent =
@@ -500,7 +638,7 @@ function escapeHtml(value) {
 
 /*
  * ================================================================
- * 開始
+ * 実行
  * ================================================================
  */
 
