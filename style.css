@@ -9,6 +9,12 @@ h1 {
     margin-bottom: 30px;
 }
 
+.live-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
 .live-card {
     width: 320px;
     background: white;
@@ -20,10 +26,41 @@ h1 {
 .live-card img {
     width: 100%;
     display: block;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
 }
 
 .live-card-content {
     padding: 15px;
+}
+
+.live-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.branch {
+    font-size: 12px;
+    color: #777;
+}
+
+.status {
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.status-live {
+    color: #e53935;
+}
+
+.status-upcoming {
+    color: #1976d2;
+}
+
+.status-ended {
+    color: #777;
 }
 
 .live-card h2 {
@@ -31,7 +68,13 @@ h1 {
     font-size: 18px;
 }
 
-.live-card p {
+.live-card h3 {
+    margin: 0 0 12px;
+    font-size: 15px;
+    font-weight: normal;
+}
+
+.start-time {
     margin: 0 0 12px;
     color: #666;
 }
@@ -41,8 +84,11 @@ h1 {
     text-decoration: none;
 }
 
-.live-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
+.live-card a:hover {
+    text-decoration: underline;
+}
+
+.error,
+.empty {
+    color: #666;
 }
