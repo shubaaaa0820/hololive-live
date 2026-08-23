@@ -280,25 +280,49 @@ function getDateKey(stream) {
 
 function formatDateHeading(dateKey) {
 
-    if (
-        dateKey === "unknown"
-    ) {
-
+    if (dateKey === "unknown") {
         return "日時不明";
     }
 
 
-    const date =
-        new Date(
-            `${dateKey}T00:00:00+09:00`
-        );
+    const parts =
+        dateKey.split("-");
 
+
+    if (parts.length !== 3) {
+        return "日時不明";
+    }
+
+
+    const year =
+        Number(parts[0]);
 
     const month =
-        date.getMonth() + 1;
+        Number(parts[1]);
 
     const day =
-        date.getDate();
+        Number(parts[2]);
+
+
+    if (
+        !year ||
+        !month ||
+        !day
+    ) {
+        return "日時不明";
+    }
+
+
+    /*
+     * 曜日だけを取得
+     */
+
+    const date =
+        new Date(
+            year,
+            month - 1,
+            day
+        );
 
 
     const weekday =
