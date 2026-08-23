@@ -3,6 +3,12 @@ const liveList = document.getElementById("live-list");
 const DATA_URL = "data/streams.json";
 
 
+/*
+ * ================================================================
+ * JSON取得
+ * ================================================================
+ */
+
 async function loadStreams() {
 
     try {
@@ -34,7 +40,7 @@ async function loadStreams() {
 
 /*
  * ================================================================
- * 全体表示
+ * 配信表示
  * ================================================================
  */
 
@@ -55,8 +61,9 @@ function displayStreams(streams) {
 
 
     /*
-     * 元のJSON順を保持したまま、
-     * 開始時刻だけでソートする。
+     * 開始時刻順に並べる
+     *
+     * 同時刻の場合はJSONの元の順番を維持
      */
 
     const sortedStreams =
@@ -68,18 +75,35 @@ function displayStreams(streams) {
             .sort((a, b) => {
 
                 const timeA =
-                    getStartTime(a.stream);
+                    new Date(
+                        getStartTime(a.stream)
+                    ).getTime();
 
                 const timeB =
-                    getStartTime(b.stream);
+                    new Date(
+                        getStartTime(b.stream)
+                    ).getTime();
 
-                if (timeA < timeB) {
-                    return -1;
+
+                /*
+                 * 日時が正常なら時刻順
+                 */
+
+                if (
+                    !Number.isNaN(timeA) &&
+                    !Number.isNaN(timeB)
+                ) {
+
+                    if (timeA !== timeB) {
+                        return timeA - timeB;
+                    }
                 }
 
-                if (timeA > timeB) {
-                    return 1;
-                }
+
+                /*
+                 * 同時刻、または日時不明なら
+                 * JSONの元の順番
+                 */
 
                 return a.index - b.index;
             })
@@ -101,14 +125,10 @@ function displayStreams(streams) {
             getDateInfo(stream);
 
 
-        const key =
-            dateInfo.key;
-
-
-        if (!groups.has(key)) {
+        if (!groups.has(dateInfo.key)) {
 
             groups.set(
-                key,
+                dateInfo.key,
                 {
                     label: dateInfo.label,
                     streams: []
@@ -118,7 +138,7 @@ function displayStreams(streams) {
 
 
         groups
-            .get(key)
+            .get(dateInfo.key)
             .streams
             .push(stream);
     }
@@ -126,7 +146,7 @@ function displayStreams(streams) {
 
     /*
      * ============================================================
-     * 日付セクション生成
+     * 日付ごとに表示
      * ============================================================
      */
 
@@ -145,12 +165,13 @@ function displayStreams(streams) {
         heading.className =
             "date-heading";
 
-
         heading.textContent =
             group.label;
 
 
-        section.appendChild(heading);
+        section.appendChild(
+            heading
+        );
 
 
         const cards =
@@ -180,7 +201,7 @@ function displayStreams(streams) {
 
 /*
  * ================================================================
- * 配信開始時刻
+ * 開始時刻取得
  * ================================================================
  */
 
@@ -197,10 +218,16 @@ function getStartTime(stream) {
 
 /*
  * ================================================================
- * 日付情報
+ * 日本時間の日付情報を取得
  *
- * ここでは日付キーを文字列として扱い、
- * Dateオブジェクトを再度日付文字列へ変換しない。
+ * 例：
+ *
+ * 2026-08-23T04:00:00Z
+ *
+ * ↓
+ *
+ * 2026年8月23日 13:00 JST
+ *
  * ================================================================
  */
 
@@ -237,54 +264,57 @@ function getDateInfo(stream) {
 
 
     /*
-     * 日本時間
+     * 日本時間の各要素を取得
      */
 
-    const formatter =
+    const year =
+        Number(
+            new Intl.DateTimeFormat(
+                "ja-JP",
+                {
+                    timeZone: "Asia/Tokyo",
+                    year: "numeric"
+                }
+            ).format(date)
+        );
+
+
+    const month =
+        Number(
+            new Intl.DateTimeFormat(
+                "ja-JP",
+                {
+                    timeZone: "Asia/Tokyo",
+                    month: "numeric"
+                }
+            ).format(date)
+        );
+
+
+    const day =
+        Number(
+            new Intl.DateTimeFormat(
+                "ja-JP",
+                {
+                    timeZone: "Asia/Tokyo",
+                    day: "numeric"
+                }
+            ).format(date)
+        );
+
+
+    const weekday =
         new Intl.DateTimeFormat(
             "ja-JP",
             {
                 timeZone: "Asia/Tokyo",
-                year: "numeric",
-                month: "numeric",
-                day: "numeric",
                 weekday: "short"
             }
-        );
-
-
-    const parts =
-        formatter.formatToParts(date);
-
-
-    let year = "";
-    let month = "";
-    let day = "";
-    let weekday = "";
-
-
-    for (const part of parts) {
-
-        if (part.type === "year") {
-            year = part.value;
-        }
-
-        if (part.type === "month") {
-            month = part.value;
-        }
-
-        if (part.type === "day") {
-            day = part.value;
-        }
-
-        if (part.type === "weekday") {
-            weekday = part.value;
-        }
-    }
+        ).format(date);
 
 
     /*
-     * 日付比較用キー
+     * グループ判定用
      */
 
     const key =
@@ -316,7 +346,6 @@ function createStreamCard(stream) {
 
     const card =
         document.createElement("article");
-
 
     card.className =
         "live-card";
@@ -368,6 +397,7 @@ function createStreamCard(stream) {
                 <span class="start-time">
                     ${escapeHtml(startTime)}
                 </span>
+
 
                 <span
                     class="status ${statusClass}"
@@ -439,7 +469,7 @@ function formatStartTime(value) {
 
 /*
  * ================================================================
- * ステータス
+ * ステータス表示
  * ================================================================
  */
 
