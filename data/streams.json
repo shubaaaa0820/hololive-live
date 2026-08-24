@@ -1,6 +1,6 @@
 {
   "success": true,
-  "updatedAt": "2026-08-24T04:10:18.589Z",
+  "updatedAt": "2026-08-24T04:11:38.629Z",
   "streams": [
     {
       "videoId": "2MMBGfSm5e8",
@@ -17,9 +17,9 @@
       "scheduledStartTime": "2026-08-24T00:00:00Z",
       "actualStartTime": "2026-08-24T00:01:06Z",
       "actualEndTime": null,
-      "concurrentViewers": 6163,
-      "viewCount": 43549,
-      "likeCount": 6507
+      "concurrentViewers": 6293,
+      "viewCount": 44164,
+      "likeCount": 6538
     },
     {
       "videoId": "GiPVZJvaZ3A",
@@ -36,9 +36,9 @@
       "scheduledStartTime": "2026-08-24T03:00:00Z",
       "actualStartTime": "2026-08-24T03:01:13Z",
       "actualEndTime": null,
-      "concurrentViewers": 1275,
-      "viewCount": 4675,
-      "likeCount": 2119
+      "concurrentViewers": 1271,
+      "viewCount": 4704,
+      "likeCount": 2136
     },
     {
       "videoId": "UCr71tJmvTc",
@@ -57,7 +57,7 @@
       "actualEndTime": null,
       "concurrentViewers": null,
       "viewCount": 0,
-      "likeCount": 486
+      "likeCount": 487
     },
     {
       "videoId": "JJcnj5Uvcr8",
@@ -152,7 +152,7 @@
       "actualEndTime": null,
       "concurrentViewers": null,
       "viewCount": 0,
-      "likeCount": 1308
+      "likeCount": 1309
     },
     {
       "videoId": "9rbg76Xn0es",
@@ -171,7 +171,7 @@
       "actualEndTime": null,
       "concurrentViewers": null,
       "viewCount": 0,
-      "likeCount": 464
+      "likeCount": 466
     },
     {
       "videoId": "DGoK0dLXnD8",
